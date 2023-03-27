@@ -2,7 +2,9 @@ const daysPerMonth = 30;
 const earthD = 160;
 const moonD = earthD / 3.7;
 const earthMoonD = 380;
+const timeOfDay = ['Midnight', 'Sunrise', 'Noon', 'Sunset'];
 let night = 0;
+let time = 0;
 let globeDirection = 0;
 
 // images
@@ -14,6 +16,7 @@ function preload() {
     moonPhases[i] = loadImage('assets/moon-phases/' + (i + 1) + '.jpg');
   }
   earth = loadImage('assets/earth.png');
+  // plainEarth = loadImage('assets/earth-0.png');
   moon = loadImage('assets/moon-above.png');
 }
 
@@ -36,11 +39,28 @@ function draw() {
   let theta = 2 * Math.asin(windowWidth / (2 * r));
   arc(windowWidth / 2, -r + sunArcHeight, 2 * r, 2 * r, PI / 2 - theta, PI / 2 + theta, CHORD);
 
+  // Moon Placement - end
+
+  // Moon phase placement
+  push();
+  let phaseDisplayWidth = moonPhases[night].width / 2;
+  let phaseDisplayHeight = moonPhases[night].height / 2;
+  translate(width - 0.7 * phaseDisplayWidth, height - 0.7 * phaseDisplayHeight);
+  image(
+    moonPhases[night],
+    -phaseDisplayWidth / 2,
+    -phaseDisplayHeight / 2,
+    phaseDisplayWidth,
+    phaseDisplayHeight
+  );
+  pop();
+
   // Earth Placement
   push();
   translate(windowWidth / 2, windowHeight / 2);
-  //rotate(PI);
-  image(earth, -earthD / 2, -earthD / 2, earthD, earthD);
+  rotate(-(PI / 2) * time);
+  // image(plainEarth, -earthD / 2, -earthD / 2, earthD, earthD);
+  image(earth, -(earthD * 5.22)/ 2, -earthD / 2, earthD * 5.22, earthD);
   pop();
 
   // Moon Placement
@@ -72,9 +92,9 @@ function draw() {
     arc(0, 0, moonD, moonD, 0, 2 * PI);
   }
   */
-
   pop();
-  
+
+  // Text placement
   fill(255, 0, 0);
   rect(40, windowHeight - 80, 20, 20);
   fill(0, 0, 255);
@@ -85,32 +105,21 @@ function draw() {
   text("Moon's dark side", 80, windowHeight - 80);
   text("Moon's far side", 80, windowHeight - 40);
 
-  // Moon Placement - end
-
-  push();
-  let phaseDisplayWidth = moonPhases[night].width / 2;
-  let phaseDisplayHeight = moonPhases[night].height / 2;
-  translate(width - 0.7 * phaseDisplayWidth, height - 0.7 * phaseDisplayHeight);
-  image(
-    moonPhases[night],
-    -phaseDisplayWidth / 2,
-    -phaseDisplayHeight / 2,
-    phaseDisplayWidth,
-    phaseDisplayHeight
-  );
   textSize(20);
   textAlign(CENTER);
   fill(255);
-  text("Night of Lunar Month: " + (night + 1), 0, phaseDisplayHeight / 2 + 40);
-  pop();
+  text("Time: " + timeOfDay[time], windowWidth / 2, windowHeight - 40);
+  text("Night of Lunar Month: " + (night + 1), width - 0.7 * phaseDisplayWidth, windowHeight - 40);
 }
 
 function keyPressed() {
   switch (keyCode) {
     case (UP_ARROW):
-    break;
+      time = (time + 1) % 4;
+      break;
     case (DOWN_ARROW):
-    break;
+      time = (time - 1) < 0 ? 3 : time - 1;
+      break;
     case (RIGHT_ARROW):
       night = (night + 1) % daysPerMonth;
       break;
