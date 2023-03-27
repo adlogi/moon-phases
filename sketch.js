@@ -7,9 +7,12 @@ let night = 0;
 let time = 0;
 let globeDirection = 0;
 
+let fade = 0;
+let fadeAmount = 1
+
 // images
 let moonPhases = [];
-let earth, moon;
+let earth, moon, arrow;
 
 function preload() {
   for (let i = 0; i < daysPerMonth; i++) {
@@ -18,11 +21,12 @@ function preload() {
   earth = loadImage('assets/earth.png');
   // plainEarth = loadImage('assets/earth-0.png');
   moon = loadImage('assets/moon-above.png');
+  arrow = loadImage('assets/arrow.png');
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  console.log(windowWidth)
+  // setInterval(changeWord, 1000);
 }
 
 function draw() {
@@ -61,6 +65,24 @@ function draw() {
   rotate(-(PI / 2) * time);
   // image(plainEarth, -earthD / 2, -earthD / 2, earthD, earthD);
   image(earth, -(earthD * 5.22)/ 2, -earthD / 2, earthD * 5.22, earthD);
+
+  tint(255, fade);
+  image(arrow, 0, earthD / 4, earthD / 2, earthD / 2);
+  // translate(earthD / 4, earthD * 4 / 5);
+  // rotate((PI / 2) * time);
+  fill(204, 204, 204, fade);
+  rect(earthD / 4, earthD * 4 / 5, 120, 120);
+  text("You are here!", earthD / 4, earthD * 4 / 5, 100, 100);
+  
+  // text("You are here!", 0, 0, 120, 120);
+  
+  if (fade < 0) {
+    fadeAmount = 10;
+  }
+  if (fade > 255) {
+    fadeAmount = -1;
+  }
+  fade += fadeAmount;
   pop();
 
   // Moon Placement
@@ -94,7 +116,6 @@ function draw() {
   */
   pop();
 
-  // Text placement
   fill(255, 0, 0);
   rect(40, windowHeight - 80, 20, 20);
   fill(0, 0, 255);
