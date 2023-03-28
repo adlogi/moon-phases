@@ -34,22 +34,22 @@ function setup() {
 function draw() {
   background(0);
   noStroke();
-  
+
   // Sun Placement
-  const sunArcHeight = 0.02 * windowHeight;
+  const sunArcHeight = 0.02 * height;
   fill(255, 175, 50);
   // r = (h/2) + (chordLength^2 / 8h)
   // theta = 2 * asin(l / 2r)
   // where h = r - distanceFromCenter
-  let r = sunArcHeight / 2 + ((windowWidth * windowWidth) / (8 * sunArcHeight));
-  let theta = 2 * Math.asin(windowWidth / (2 * r));
-  arc(windowWidth / 2, -r + sunArcHeight, 2 * r, 2 * r, PI / 2 - theta, PI / 2 + theta, CHORD);
+  let r = sunArcHeight / 2 + ((width * width) / (8 * sunArcHeight));
+  let theta = 2 * Math.asin(width / (2 * r));
+  arc(width / 2, height + r - sunArcHeight, 2 * r, 2 * r, PI / 2 + theta, PI / 2 - theta, CHORD);
 
   // Moon phase placement
   push();
   let phaseDisplayWidth = moonPhases[night].width / 2;
   let phaseDisplayHeight = moonPhases[night].height / 2;
-  translate(width - 0.7 * phaseDisplayWidth, height - 0.7 * phaseDisplayHeight);
+  translate(width - 0.7 * phaseDisplayWidth, 0.7 * phaseDisplayHeight);
   image(
     moonPhases[night],
     -phaseDisplayWidth / 2,
@@ -58,11 +58,11 @@ function draw() {
     phaseDisplayHeight
   );
   pop();
-
+  
   // Earth Placement
   push();
-  translate(windowWidth / 2, windowHeight / 2);
-  rotate(-(PI / 2) * time);
+  translate(width / 2, height / 2);
+  rotate((2 - time) * PI / 2);
 
   if (horizonDisplayed) {
     image(horizon, -(earthD * 5.22) / 2, -earthD * 0.3, earthD * 5.22, earthD);
@@ -73,20 +73,20 @@ function draw() {
       tint(255, fade);
       image(arrow, 0, earthD / 4, earthD / 2, earthD / 2);
       // translate(earthD / 4, earthD * 4 / 5);
-      rotate((PI / 2) * time);
+      rotate((time - 2) * PI / 2);
       fill(204, 204, 204, fade);
       switch (time) {
         case 0:
-          text("You are here!", earthD * 0.2, earthD * 0.8, 100, 100);
-          break;
-        case 1:
-          text("You are here!", earthD * 0.75, -earthD * 0.6, 100, 100);
-          break;
-        case 2:
           text("You are here!", -earthD * 0.8, -earthD * 1.1, 100, 100);
           break;
-        case 3:
+        case 1:
           text("You are here!", -earthD * 1.3, earthD * 0.3, 100, 100);
+          break;
+        case 2:
+          text("You are here!", earthD * 0.2, earthD * 0.8, 100, 100);
+          break;
+        case 3:
+          text("You are here!",earthD * 0.75, -earthD * 0.6, 100, 100);
           break;
         default:
           text("You are here!", 0, 0, 100, 100);
@@ -106,8 +106,8 @@ function draw() {
 
   // Moon Placement
   push();
-  translate(windowWidth / 2, windowHeight / 2);
-  rotate(-(night + 1) * 2 * PI / daysPerMonth);
+  translate(width / 2, height / 2);
+  rotate(PI - (night + 1) * 2 * PI / daysPerMonth);
   translate(0, -earthMoonD);
   image(moon, -moonD / 2, -moonD / 2, moonD, moonD);
   
@@ -135,21 +135,22 @@ function draw() {
   */
   pop();
 
-  fill(255, 0, 0);
-  rect(40, windowHeight - 80, 20, 20);
   fill(0, 0, 255);
-  rect(40, windowHeight - 40, 20, 20);
+  rect(40, 30, 20, 20);
+  fill(255, 0, 0);
+  rect(40, 70, 20, 20);
   textSize(16);
   textAlign(LEFT, TOP);
   fill('#CCCCCC');
-  text("Moon's dark side", 80, windowHeight - 80);
-  text("Moon's far side", 80, windowHeight - 40);
+  text("Moon's far side", 80, 33);
+  text("Moon's dark side", 80, 73);
+  
 
   textSize(20);
   textAlign(CENTER);
   fill(255);
-  text("Time: " + timeOfDay[time], windowWidth / 2, windowHeight - 40);
-  text("Night of Lunar Month: " + (night + 1), width - 0.7 * phaseDisplayWidth, windowHeight - 40);
+  text("Time: " + timeOfDay[time], width / 2, 30);
+  text("Night of Lunar Month: " + (night + 1), width - 0.7 * phaseDisplayWidth, 30);
 }
 
 function keyPressed() {
