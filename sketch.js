@@ -9,6 +9,8 @@ let globeDirection = 0;
 
 let fade = 0;
 let fadeAmount = 1
+let horizonDisplayed = false;
+let locationDisplayed = false;
 
 // images
 let earth, moon, arrow, horizon;
@@ -43,8 +45,6 @@ function draw() {
   let theta = 2 * Math.asin(windowWidth / (2 * r));
   arc(windowWidth / 2, -r + sunArcHeight, 2 * r, 2 * r, PI / 2 - theta, PI / 2 + theta, CHORD);
 
-  // Moon Placement - end
-
   // Moon phase placement
   push();
   let phaseDisplayWidth = moonPhases[night].width / 2;
@@ -63,43 +63,45 @@ function draw() {
   push();
   translate(windowWidth / 2, windowHeight / 2);
   rotate(-(PI / 2) * time);
-  // image(plainEarth, -earthD / 2, -earthD / 2, earthD, earthD);
-  image(earth, -earthD / 2, -earthD / 2, earthD, earthD);
-  image(horizon, -(earthD * 5.22) / 2, -earthD * 0.3, earthD * 5.22, earthD);
 
-  tint(255, fade);
-  image(arrow, 0, earthD / 4, earthD / 2, earthD / 2);
-  // translate(earthD / 4, earthD * 4 / 5);
-  rotate((PI / 2) * time);
-  fill(204, 204, 204, fade);
-  switch (time) {
-    case 0:
-      text("You are here!", earthD * 0.2, earthD * 0.8, 100, 100);
-      break;
-    case 1:
-      text("You are here!", earthD * 0.75, -earthD * 0.6, 100, 100);
-      break;
-    case 2:
-      text("You are here!", -earthD * 0.8, -earthD * 1.1, 100, 100);
-      break;
-    case 3:
-      text("You are here!", -earthD * 1.3, earthD * 0.3, 100, 100);
-      break;
-    default:
-      text("You are here!", 0, 0, 100, 100);
-      break;
+  if (horizonDisplayed) {
+    image(horizon, -(earthD * 5.22) / 2, -earthD * 0.3, earthD * 5.22, earthD);
+  } else {
+    image(earth, -earthD / 2, -earthD / 2, earthD, earthD);
+
+    if (locationDisplayed) {
+      tint(255, fade);
+      image(arrow, 0, earthD / 4, earthD / 2, earthD / 2);
+      // translate(earthD / 4, earthD * 4 / 5);
+      rotate((PI / 2) * time);
+      fill(204, 204, 204, fade);
+      switch (time) {
+        case 0:
+          text("You are here!", earthD * 0.2, earthD * 0.8, 100, 100);
+          break;
+        case 1:
+          text("You are here!", earthD * 0.75, -earthD * 0.6, 100, 100);
+          break;
+        case 2:
+          text("You are here!", -earthD * 0.8, -earthD * 1.1, 100, 100);
+          break;
+        case 3:
+          text("You are here!", -earthD * 1.3, earthD * 0.3, 100, 100);
+          break;
+        default:
+          text("You are here!", 0, 0, 100, 100);
+          break;
+      }
+
+      if (fade < 0) {
+        fadeAmount = 10;
+      }
+      if (fade > 255) {
+        fadeAmount = -1;
+      }
+      fade += fadeAmount;
+    }
   }
-  
-  
-  // text("You are here!", 0, 0, 120, 120);
-  
-  if (fade < 0) {
-    fadeAmount = 10;
-  }
-  if (fade > 255) {
-    fadeAmount = -1;
-  }
-  fade += fadeAmount;
   pop();
 
   // Moon Placement
@@ -165,6 +167,7 @@ function keyPressed() {
       night = (night - 1) < 0 ? 29 : night - 1;
       break;
     case (32): // Space
+      horizonDisplayed = !horizonDisplayed;
       break;
   }
 }
