@@ -11,16 +11,16 @@ let fade = 0;
 let fadeAmount = 1
 
 // images
+let earth, moon, arrow, horizon;
 let moonPhases = [];
-let earth, moon, arrow;
 
 function preload() {
   for (let i = 0; i < daysPerMonth; i++) {
     moonPhases[i] = loadImage('assets/moon-phases/' + (i + 1) + '.jpg');
   }
-  earth = loadImage('assets/earth.png');
-  // plainEarth = loadImage('assets/earth-0.png');
+  earth = loadImage('assets/earth-0.png');
   moon = loadImage('assets/moon-above.png');
+  horizon = loadImage('assets/horizon.png');
   arrow = loadImage('assets/arrow.png');
 }
 
@@ -64,15 +64,32 @@ function draw() {
   translate(windowWidth / 2, windowHeight / 2);
   rotate(-(PI / 2) * time);
   // image(plainEarth, -earthD / 2, -earthD / 2, earthD, earthD);
-  image(earth, -(earthD * 5.22)/ 2, -earthD / 2, earthD * 5.22, earthD);
+  image(earth, -earthD / 2, -earthD / 2, earthD, earthD);
+  image(horizon, -(earthD * 5.22) / 2, -earthD * 0.3, earthD * 5.22, earthD);
 
   tint(255, fade);
   image(arrow, 0, earthD / 4, earthD / 2, earthD / 2);
   // translate(earthD / 4, earthD * 4 / 5);
-  // rotate((PI / 2) * time);
+  rotate((PI / 2) * time);
   fill(204, 204, 204, fade);
-  rect(earthD / 4, earthD * 4 / 5, 120, 120);
-  text("You are here!", earthD / 4, earthD * 4 / 5, 100, 100);
+  switch (time) {
+    case 0:
+      text("You are here!", earthD * 0.2, earthD * 0.8, 100, 100);
+      break;
+    case 1:
+      text("You are here!", earthD * 0.75, -earthD * 0.6, 100, 100);
+      break;
+    case 2:
+      text("You are here!", -earthD * 0.8, -earthD * 1.1, 100, 100);
+      break;
+    case 3:
+      text("You are here!", -earthD * 1.3, earthD * 0.3, 100, 100);
+      break;
+    default:
+      text("You are here!", 0, 0, 100, 100);
+      break;
+  }
+  
   
   // text("You are here!", 0, 0, 120, 120);
   
@@ -146,6 +163,8 @@ function keyPressed() {
       break;
     case (LEFT_ARROW):
       night = (night - 1) < 0 ? 29 : night - 1;
+      break;
+    case (32): // Space
       break;
   }
 }
