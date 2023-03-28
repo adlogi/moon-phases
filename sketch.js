@@ -13,7 +13,7 @@ let horizonDisplayed = false;
 let locationDisplayed = false;
 
 // images
-let earth, moon, arrow, horizon;
+let earth, moon, arrow, horizon, ray;
 let moonPhases = [];
 
 function preload() {
@@ -24,11 +24,16 @@ function preload() {
   moon = loadImage('assets/moon-above.png');
   horizon = loadImage('assets/horizon.png');
   arrow = loadImage('assets/arrow.png');
+  ray = loadImage('assets/ray.png');
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  // setInterval(changeWord, 1000);
+  setInterval(() => {
+    locationDisplayed = true;
+    fade = 0;
+    fadeAmount = 1;
+  }, 15000);
 }
 
 function draw() {
@@ -43,7 +48,24 @@ function draw() {
   // where h = r - distanceFromCenter
   let r = sunArcHeight / 2 + ((width * width) / (8 * sunArcHeight));
   let theta = 2 * Math.asin(width / (2 * r));
-  arc(width / 2, height + r - sunArcHeight, 2 * r, 2 * r, PI / 2 + theta, PI / 2 - theta, CHORD);
+  console.log(theta)
+  // FIXME: theta is really small: 0.09 -- recheck this value!
+  arc(
+    width / 2,
+    height + r - sunArcHeight,
+    2 * r,
+    2 * r,
+    PI / 2 + theta,
+    PI / 2 - theta / 10,
+    CHORD
+  );
+  // push();
+  // translate(width / 2, height);
+  // rotate(PI);
+  // let a = theta;
+
+  // image(ray, 0, 25, 7, 50);
+  // pop();
 
   // Moon phase placement
   push();
@@ -72,7 +94,6 @@ function draw() {
     if (locationDisplayed) {
       tint(255, fade);
       image(arrow, 0, earthD / 4, earthD / 2, earthD / 2);
-      // translate(earthD / 4, earthD * 4 / 5);
       rotate((time - 2) * PI / 2);
       fill(204, 204, 204, fade);
       switch (time) {
@@ -94,7 +115,8 @@ function draw() {
       }
 
       if (fade < 0) {
-        fadeAmount = 10;
+        // fadeAmount = 10;
+        locationDisplayed = false;
       }
       if (fade > 255) {
         fadeAmount = -1;
@@ -111,16 +133,16 @@ function draw() {
   translate(0, -earthMoonD);
   image(moon, -moonD / 2, -moonD / 2, moonD, moonD);
   
-  // Moon's far side
-  fill(0, 0, 255, 200);
-  arc(0, 0, moonD, moonD, PI, 0);
-
   // Moon's dark side
   push();
   rotate((night + 1) * 2 * PI / daysPerMonth);
   fill(255, 0, 0, 200);
   arc(0, 0, moonD, moonD, 0, PI);
   pop();
+
+  // Moon's far side
+  fill(0, 0, 255, 200);
+  arc(0, 0, moonD, moonD, PI, 0);
 
   // Moon's dark and far sides in one arc
   /*
@@ -145,7 +167,6 @@ function draw() {
   text("Moon's far side", 80, 33);
   text("Moon's dark side", 80, 73);
   
-
   textSize(20);
   textAlign(CENTER);
   fill(255);
