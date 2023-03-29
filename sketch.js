@@ -43,20 +43,19 @@ function draw() {
   // Sun Placement
   const sunArcHeight = 0.02 * height;
   fill(255, 175, 50);
-  // r = (h/2) + (chordLength^2 / 8h)
-  // theta = 2 * asin(l / 2r)
-  // where h = r - distanceFromCenter
+  // r = (h/2) + (c^2 / 8h)
+  // theta = 2 * acos(c / 2r)
+  // where h = r - distanceFromCenter, c: chord
+  // see: https://planetcalc.com/1421/
   let r = sunArcHeight / 2 + ((width * width) / (8 * sunArcHeight));
-  let theta = 2 * Math.asin(width / (2 * r));
-  console.log(theta)
-  // FIXME: theta is really small: 0.09 -- recheck this value!
+  let theta = 2 * Math.acos(width / (2 * r));
   arc(
     width / 2,
     height + r - sunArcHeight,
     2 * r,
     2 * r,
-    PI / 2 + theta,
-    PI / 2 - theta / 10,
+    -PI / 2 - (PI - theta) / 2,
+    -PI / 2 + (PI - theta) / 2,
     CHORD
   );
   // push();
