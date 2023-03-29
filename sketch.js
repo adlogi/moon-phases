@@ -48,23 +48,26 @@ function draw() {
   // where h = r - distanceFromCenter, c: chord
   // see: https://planetcalc.com/1421/
   let r = sunArcHeight / 2 + ((width * width) / (8 * sunArcHeight));
-  let theta = 2 * Math.acos(width / (2 * r));
+  let theta = PI - (2 * Math.acos(width / (2 * r)));
+  let numOfRays = 20;
+  push();
+  translate(width / 2, height + r - sunArcHeight);
   arc(
-    width / 2,
-    height + r - sunArcHeight,
+    0,
+    0,
     2 * r,
     2 * r,
-    -PI / 2 - (PI - theta) / 2,
-    -PI / 2 + (PI - theta) / 2,
+    -PI / 2 - theta / 2,
+    -PI / 2 + theta / 2,
     CHORD
   );
-  // push();
-  // translate(width / 2, height);
-  // rotate(PI);
-  // let a = theta;
-
-  // image(ray, 0, 25, 7, 50);
-  // pop();
+  for (let i = 0; i < numOfRays; i++) {
+    push();
+    rotate(PI + ((i - 10) / 20 * theta));
+    image(ray, 0, r + 5, 7, 50);
+    pop();
+  }
+  pop();
 
   // Moon phase placement
   push();
