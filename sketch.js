@@ -81,6 +81,27 @@ function draw() {
   rotate((2 - time) * PI / 2);
 
   if (horizonDisplayed) {
+    switch (time) {
+      case 0:
+        fill(1, 0, 21, 200);
+        arc(0, 0 - 40, earthD * 5.22, earthD * 5.22, 0 + PI / 58, PI - PI / 58);
+        break;
+      case 1:
+        fill(255, 231 ,0, 200);
+        arc(0, 0 - 40, earthD * 5.22, earthD * 5.22, 0 + PI / 58, PI - PI / 58);
+        break;
+      case 2:
+        fill(232, 243, 255, 200);
+        arc(0, 0 - 40, earthD * 5.22, earthD * 5.22, 0 + PI / 58, PI - PI / 58);
+        break;
+      case 3:
+        fill(238, 93, 108, 200);
+        arc(0, 0 - 40, earthD * 5.22, earthD * 5.22, 0 + PI / 58, PI - PI / 58);
+        break;
+      default:
+        break;
+    }
+    
     image(horizon, -(earthD * 5.22) / 2, -earthD * 0.3, earthD * 5.22, earthD);
   } else {
     image(earth, -earthD / 2, -earthD / 2, earthD, earthD);
