@@ -5,7 +5,8 @@ const earthMoonD = 380;
 const timeOfDay = ['Midnight', 'Sunrise', 'Noon', 'Sunset'];
 let night = 0;
 let time = 0;
-let globeDirection = 0;
+let universePanelRatio = 0.8;
+let uWidth;
 
 let fade = 0;
 let fadeAmount = 1
@@ -30,6 +31,7 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  uWidth = width * universePanelRatio;
   setInterval(() => {
     locationDisplayed = true;
     fade = 0;
@@ -40,7 +42,7 @@ function setup() {
 function draw() {
   background(0);
   tint(255, 100);
-  image(universe, 0, 0, width, height);
+  image(universe, 0, 0, uWidth, height);
   noTint();
   noStroke();
 
@@ -51,11 +53,11 @@ function draw() {
   // theta = 2 * acos(c / 2r)
   // where h = r - distanceFromCenter, c: chord
   // see: https://planetcalc.com/1421/
-  let r = sunArcHeight / 2 + ((width * width) / (8 * sunArcHeight));
-  let theta = PI - (2 * Math.acos(width / (2 * r)));
+  let r = sunArcHeight / 2 + ((uWidth * uWidth) / (8 * sunArcHeight));
+  let theta = PI - (2 * Math.acos(uWidth / (2 * r)));
   let numOfRays = 20;
   push();
-  translate(width / 2, height + r - sunArcHeight);
+  translate(uWidth / 2, height + r - sunArcHeight);
   arc(
     0,
     0,
@@ -72,24 +74,10 @@ function draw() {
     pop();
   }
   pop();
-
-  // Moon phase placement
-  push();
-  let phaseDisplayWidth = moonPhases[night].width / 2;
-  let phaseDisplayHeight = moonPhases[night].height / 2;
-  translate(width - 0.7 * phaseDisplayWidth, 0.7 * phaseDisplayHeight);
-  image(
-    moonPhases[night],
-    -phaseDisplayWidth / 2,
-    -phaseDisplayHeight / 2,
-    phaseDisplayWidth,
-    phaseDisplayHeight
-  );
-  pop();
   
   // Earth Placement
   push();
-  translate(width / 2, height / 2);
+  translate(uWidth / 2, height / 2);
   rotate((2 - time) * PI / 2);
 
   if (horizonDisplayed) {
@@ -102,6 +90,8 @@ function draw() {
       image(arrow, 0, earthD / 4, earthD / 2, earthD / 2);
       rotate((time - 2) * PI / 2);
       fill(204, 204, 204, fade);
+      textSize(20);
+      textAlign(CENTER);
       switch (time) {
         case 0:
           text("You are here!", -earthD * 0.8, -earthD * 1.1, 100, 100);
@@ -134,7 +124,7 @@ function draw() {
 
   // Moon Placement
   push();
-  translate(width / 2, height / 2);
+  translate(uWidth / 2, height / 2);
   rotate(PI - (night + 1) * 2 * PI / daysPerMonth);
   translate(0, -earthMoonD);
   image(moon, -moonD / 2, -moonD / 2, moonD, moonD);
@@ -163,21 +153,45 @@ function draw() {
   */
   pop();
 
+  // Moon phase panel
+  let phasePanelWidth = (1 - universePanelRatio) * width;
+  let phaseWidth = 0.8 * phasePanelWidth;
+  let phaseHeight = phaseWidth;
+  push();
+  translate(width - phasePanelWidth, 0);
+  image(
+    moonPhases[night],
+    0.5 * (phasePanelWidth - phaseWidth),
+    0.5 * (phasePanelWidth - phaseWidth) + 30,
+    phaseWidth,
+    phaseHeight
+  );
+
+  textAlign(CENTER);
+  fill(255);
+  textSize(100);
+  text((night + 1), phasePanelWidth / 2, phaseHeight + 140 + 40);
+  textSize(20);
+  text("Night of the Lunar Month", phasePanelWidth / 2, phaseHeight + 200 + 40);
+  textSize(40);
+  text(timeOfDay[time], phasePanelWidth / 2, phaseHeight + 320 + 40);
+  textSize(20);
+  text("Dubai's Time", phasePanelWidth / 2, phaseHeight + 360 + 40);
+
   fill(0, 0, 255);
-  rect(40, 30, 20, 20);
+  rect(40, height - 120, 20, 20);
   fill(255, 0, 0);
-  rect(40, 70, 20, 20);
+  rect(40, height - 80, 20, 20);
+  fill(255, 175, 50);
+  rect(40, height - 40, 20, 20);
   textSize(16);
   textAlign(LEFT, TOP);
   fill('#CCCCCC');
-  text("Moon's far side", 80, 33);
-  text("Moon's dark side", 80, 73);
+  text("Moon's far side", 80, height - 120 + 3);
+  text("Moon's dark side", 80, height - 80 + 3);
+  text("The Sun", 80, height - 40 + 3);
   
-  textSize(20);
-  textAlign(CENTER);
-  fill(255);
-  text("Time: " + timeOfDay[time], width / 2, 30);
-  text("Night of Lunar Month: " + (night + 1), width - 0.7 * phaseDisplayWidth, 30);
+  pop();
 }
 
 function keyPressed() {
