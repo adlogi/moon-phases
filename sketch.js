@@ -13,7 +13,7 @@ let horizonDisplayed = false;
 let locationDisplayed = false;
 
 // images
-let earth, moon, arrow, horizon, ray;
+let earth, moon, arrow, horizon, ray, universe;
 let moonPhases = [];
 
 function preload() {
@@ -25,6 +25,7 @@ function preload() {
   horizon = loadImage('assets/horizon.png');
   arrow = loadImage('assets/arrow.png');
   ray = loadImage('assets/ray.png');
+  universe = loadImage('assets/universe.jpg');
 }
 
 function setup() {
@@ -38,6 +39,9 @@ function setup() {
 
 function draw() {
   background(0);
+  tint(255, 100);
+  image(universe, 0, 0, width, height);
+  noTint();
   noStroke();
 
   // Sun Placement
