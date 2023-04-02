@@ -150,6 +150,7 @@ function draw() {
       image(arrow, 0, earthD / 4, earthD / 2, earthD / 2);
       rotate((time - 2) * PI / 2);
       fill(204, 204, 204, fade);
+      // FIXME: place text correctly
       textSize(20);
       textAlign(CENTER);
       switch (time) {
@@ -326,4 +327,9 @@ function keyPressed() {
       horizonDisplayed = !horizonDisplayed;
       break;
   }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  uWidth = width * universePanelRatio;
 }
