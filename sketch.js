@@ -3,6 +3,16 @@ const earthD = 160;
 const moonD = earthD / 3.7;
 const earthMoonD = 380;
 const timeOfDay = ['Midnight', 'Sunrise', 'Noon', 'Sunset'];
+const phaseNames = [
+  'Waxing Crescent',
+  'First Quarter',
+  'Waxing Gibbous',
+  'Full Moon',
+  'Waning Gibbous',
+  'Last Quarter',
+  'Waning Crescent',
+  'New Moon'
+];
 let night = 0;
 let time = 0;
 let universePanelRatio = 0.8;
@@ -189,12 +199,15 @@ function draw() {
   let phasePanelWidth = (1 - universePanelRatio) * width;
   let phaseWidth = 0.8 * phasePanelWidth;
   let phaseHeight = phaseWidth;
+  const phaseOffset = 30;
+  const timeOffset = 380;
+  const keyOffset = height - 120;
   push();
   translate(width - phasePanelWidth, 0);
   image(
     moonPhases[night],
     0.5 * (phasePanelWidth - phaseWidth),
-    0.5 * (phasePanelWidth - phaseWidth) + 30,
+    0.5 * (phasePanelWidth - phaseWidth) + phaseOffset,
     phaseWidth,
     phaseHeight
   );
@@ -204,24 +217,45 @@ function draw() {
   textSize(100);
   text((night + 1), phasePanelWidth / 2, phaseHeight + 140 + 40);
   textSize(20);
-  text("Night of the Lunar Month", phasePanelWidth / 2, phaseHeight + 200 + 40);
+  text("Night" + (night === 0 ? '' : 's') + " of the Lunar Month", phasePanelWidth / 2, phaseHeight + 200 + 40);
+  textSize(30);
+  let moonPhaseName = phaseNames[0];
+  if (night < 7) {
+    moonPhaseName = phaseNames[0];
+  } else if (night < 8) {
+    moonPhaseName = phaseNames[1];
+  } else if (night < 14) {
+    moonPhaseName = phaseNames[2];
+  } else if (night < 15) {
+    moonPhaseName = phaseNames[3];
+  } else if (night < 22) {
+    moonPhaseName = phaseNames[4];
+  } else if (night < 23) {
+    moonPhaseName = phaseNames[5];
+  } else if (night < 29) {
+    moonPhaseName = phaseNames[6];
+  } else {
+    moonPhaseName = phaseNames[7];
+  }
+  text('( ' + moonPhaseName + ' )', phasePanelWidth / 2, phaseHeight + 240 + 40);
+  
   textSize(40);
-  text(timeOfDay[time], phasePanelWidth / 2, phaseHeight + 320 + 40);
+  text(timeOfDay[time], phasePanelWidth / 2, phaseHeight + timeOffset);
   textSize(20);
-  text("Dubai's Time", phasePanelWidth / 2, phaseHeight + 360 + 40);
+  text("Dubai's Time", phasePanelWidth / 2, phaseHeight + timeOffset + 40);
 
   fill(0, 0, 255);
-  rect(40, height - 120, 20, 20);
+  rect(40, keyOffset, 20, 20);
   fill(255, 0, 0);
-  rect(40, height - 80, 20, 20);
+  rect(40, keyOffset + 30, 20, 20);
   fill(255, 175, 50);
-  rect(40, height - 40, 20, 20);
+  rect(40, keyOffset + 60, 20, 20);
   textSize(16);
   textAlign(LEFT, TOP);
   fill('#CCCCCC');
-  text("Moon's far side", 80, height - 120 + 3);
-  text("Moon's dark side", 80, height - 80 + 3);
-  text("The Sun", 80, height - 40 + 3);
+  text("Moon's far side", 80, keyOffset + 3);
+  text("Moon's dark side", 80, keyOffset + 30 + 3);
+  text("The Sun", 80, keyOffset + 60 + 3);
   
   pop();
 }
