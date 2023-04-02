@@ -148,30 +148,41 @@ function draw() {
   translate(uWidth / 2, height / 2);
   rotate(PI - (night + 1) * 2 * PI / daysPerMonth);
   translate(0, -earthMoonD);
-  image(moon, -moonD / 2, -moonD / 2, moonD, moonD);
-  
-  // Moon's dark side
-  push();
-  rotate((night + 1) * 2 * PI / daysPerMonth);
-  fill(255, 0, 0, 200);
-  arc(0, 0, moonD, moonD, 0, PI);
-  pop();
 
-  // Moon's far side
-  fill(0, 0, 255, 200);
-  arc(0, 0, moonD, moonD, PI, 0);
-
-  // Moon's dark and far sides in one arc
-  /*
-  fill(0, 0, 0, 200);
-  if (night < 15) {
-    arc(0, 0, moonD, moonD, (2 * PI / 30) * (night  + 1), 0);
-  } else if (night < 29) {
-    arc(0, 0, moonD, moonD, PI, (2 * PI / 30) * (night  + 1) - PI);
+  if (horizonDisplayed) {
+    // mask the moon phase image
+    // See: https://www.youtube.com/watch?v=Wdz71QzcdyY
+    let cnv = createGraphics(moonD, moonD);
+    let littleMoon = moonPhases[night].get();
+    cnv.ellipse(cnv.width / 2, cnv.height / 2, moonD * 0.95, moonD * 0.95);
+    littleMoon.mask(cnv);
+    image(littleMoon, -moonD / 2, -moonD / 2, moonD, moonD);
   } else {
-    arc(0, 0, moonD, moonD, 0, 2 * PI);
+    image(moon, -moonD / 2, -moonD / 2, moonD, moonD);
+  
+    // Moon's dark side
+    push();
+    rotate((night + 1) * 2 * PI / daysPerMonth);
+    fill(255, 0, 0, 200);
+    arc(0, 0, moonD, moonD, 0, PI);
+    pop();
+
+    // Moon's far side
+    fill(0, 0, 255, 200);
+    arc(0, 0, moonD, moonD, PI, 0);
+
+    // Moon's dark and far sides in one arc
+    /*
+    fill(0, 0, 0, 200);
+    if (night < 15) {
+      arc(0, 0, moonD, moonD, (2 * PI / 30) * (night  + 1), 0);
+    } else if (night < 29) {
+      arc(0, 0, moonD, moonD, PI, (2 * PI / 30) * (night  + 1) - PI);
+    } else {
+      arc(0, 0, moonD, moonD, 0, 2 * PI);
+    }
+    */
   }
-  */
   pop();
 
   // Moon phase panel
