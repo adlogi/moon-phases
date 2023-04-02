@@ -1,8 +1,20 @@
+let canvas;
+let ctx;
+
 const daysPerMonth = 30;
 const earthD = 160;
 const moonD = earthD / 3.7;
 const earthMoonD = 380;
-const timeOfDay = ['Midnight', 'Sunrise', 'Noon', 'Sunset'];
+const timeOfDay = [
+  'Midnight',
+  'Post-Midnight',
+  'Sunrise',
+  'Morning',
+  'Noon',
+  'Afternoon',
+  'Sunset',
+  'Evening'
+];
 const phaseNames = [
   'Waxing Crescent',
   'First Quarter',
@@ -13,6 +25,35 @@ const phaseNames = [
   'Waning Crescent',
   'New Moon'
 ];
+
+const colors = [
+  [0, '00000c', 1, '00000c'],
+  [0, '020111', 1, '191621'],
+  [0, '020111', 1, '20202c'],
+  [0, '020111', 1, '3a3a52'],
+  [0, '20202c', 1, '515175'],
+  [0, '40405c', 0.8, '6f71aa', 1, '8a76ab'],
+  [0, '4a4969', 0.5, '7072ab', 1, 'cd82a0'],
+  [0, '757abf', 0.6, '8583be', 1, 'eab0d1'],
+  [0, '82addb', 1, 'ebb2b1'],
+  [0, '94c5f8', 0.7, 'a6e6ff', 1, 'b1b5ea'],
+  [0, 'b7eaff', 1, '94dfff'],
+  [0, '9be2fe', 1, '67d1fb'],
+  [0, '90dffe', 1, '38a3d1'],
+  [0, '57c1eb', 1, '246fa8'],
+  [0, '2d91c2', 1, '1e528e'],
+  [0, '2473ab', 0.7, '1e528e', 1, '5b7983'],
+  [0, '1e528e', 0.5, '265889', 1, '9da671'],
+  [0, '1e528e', 0.5, '728a7c', 1, 'e9ce5d'],
+  [0, '154277', 0.3, '576e71', 0.7, 'e1c45e', 1, 'b26339'],
+  [0, '163C52', 0.3, '4F4F47', 0.6, 'C5752D', 0.8, 'B7490F', 1, '2F1107'],
+  [0, '071B26', 0.3, '071B26', 0.8, '8A3B12',1, '240E03'],
+  [0.3, '010A10', 0.8, '59230B', 1, '2F1107'],
+  [0.5, '090401', 1, '4B1D06'],
+  [0.8, '00000c', 1, '150800'],
+];
+// Source: https://codepen.io/billyysea/pen/nLroLY
+
 let night = 0;
 let time = 0;
 let universePanelRatio = 0.8;
@@ -40,7 +81,8 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  canvas = createCanvas(windowWidth, windowHeight);
+  ctx = canvas.drawingContext;
   uWidth = width * universePanelRatio;
   setInterval(() => {
     locationDisplayed = true;
@@ -88,30 +130,17 @@ function draw() {
   // Earth Placement
   push();
   translate(uWidth / 2, height / 2);
-  rotate((2 - time) * PI / 2);
+  rotate(PI - time * PI / 12)
 
   if (horizonDisplayed) {
-    switch (time) {
-      case 0:
-        fill(1, 0, 21, 200);
-        arc(0, 0 - 40, earthD * 5.22, earthD * 5.22, 0 + PI / 58, PI - PI / 58);
-        break;
-      case 1:
-        fill(255, 231 ,0, 200);
-        arc(0, 0 - 40, earthD * 5.22, earthD * 5.22, 0 + PI / 58, PI - PI / 58);
-        break;
-      case 2:
-        fill(232, 243, 255, 200);
-        arc(0, 0 - 40, earthD * 5.22, earthD * 5.22, 0 + PI / 58, PI - PI / 58);
-        break;
-      case 3:
-        fill(238, 93, 108, 200);
-        arc(0, 0 - 40, earthD * 5.22, earthD * 5.22, 0 + PI / 58, PI - PI / 58);
-        break;
-      default:
-        break;
+    // For creating radial gradients see: https://codepen.io/pelletierauger/pen/GqJRXE
+    // Also: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createRadialGradient
+    let gradient = ctx.createRadialGradient(0, -150, 200, 0, 50, 400);
+    for (let i = 0; i < colors[time].length / 2; i++) {
+      gradient.addColorStop(1 - colors[time][i * 2], '#' + colors[time][i * 2 + 1] + 'CC');
     }
-    
+    ctx.fillStyle = gradient;
+    arc(0, 0 - 40, earthD * 5.22, earthD * 5.22, 0 + PI / 58, PI - PI / 58);
     image(horizon, -(earthD * 5.22) / 2, -earthD * 0.3, earthD * 5.22, earthD);
   } else {
     image(earth, -earthD / 2, -earthD / 2, earthD, earthD);
@@ -240,7 +269,26 @@ function draw() {
   text('( ' + moonPhaseName + ' )', phasePanelWidth / 2, phaseHeight + 240 + 40);
   
   textSize(40);
-  text(timeOfDay[time], phasePanelWidth / 2, phaseHeight + timeOffset);
+  let tod = timeOfDay[0];
+  if (time < 1) {
+    tod = timeOfDay[0];
+  } else if (time < 6) {
+    tod = timeOfDay[1];
+  } else if (time < 7) {
+    tod = timeOfDay[2];
+  } else if (time < 12) {
+    tod = timeOfDay[3];
+  } else if (time < 13) {
+    tod = timeOfDay[4];
+  } else if (time < 18) {
+    tod = timeOfDay[5];
+  } else if (time < 19) {
+    tod = timeOfDay[6];
+  } else {
+    tod = timeOfDay[7];
+  }
+  text(tod, phasePanelWidth / 2, phaseHeight + timeOffset);
+  
   textSize(20);
   text("Dubai's Time", phasePanelWidth / 2, phaseHeight + timeOffset + 40);
 
@@ -263,10 +311,10 @@ function draw() {
 function keyPressed() {
   switch (keyCode) {
     case (UP_ARROW):
-      time = (time + 1) % 4;
+      time = (time + 1) % 24;
       break;
     case (DOWN_ARROW):
-      time = (time - 1) < 0 ? 3 : time - 1;
+      time = (time - 1) < 0 ? 23 : time - 1;
       break;
     case (RIGHT_ARROW):
       night = (night + 1) % daysPerMonth;
