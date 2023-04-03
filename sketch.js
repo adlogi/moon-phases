@@ -413,7 +413,10 @@ function gotData() {
   if (!currentString) {
     return;
   }
-  night = parseInt(currentString);
+  // input format: "Xk0" + output0Val + "Xk1" + output1Val + "Xb0" + buttonPress
+  const sensors = currentString.split('X').slice(1);
+  night = parseInt(sensors[0].slice(2));
+  // TODO: add show horizon instead of reading SPACE press
 }
 
 function gotRawData(data) {
