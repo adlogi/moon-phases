@@ -1,21 +1,25 @@
 let canvas;
 let ctx;
 
-// Serial communication
-let serial; // p5.SerialPort object
-let serialPortName = '/dev/cu.usbmodem2101';
-let latestData = '';
-let incomingData = 0;
-let serialOpen = false;
+let night = 0;
+let time = 0;
+let universePanelRatio = 0.8;
+let uWidth;
 
-// let portNameInput, portNameButton;
-let portNameSelect;
-let portNameSelectVisible = false;
+let fade = 0;
+let fadeAmount = 1
+let horizonDisplayed = false;
+let locationDisplayed = true;
+
+// images
+let earth, moon, horizon, ray, universe, arrow;
+let moonPhases = [];
 
 const daysPerMonth = 30;
 const earthD = 160;
 const moonD = earthD / 3.7;
 const earthMoonD = 380;
+
 const timeOfDay = [
   'Midnight',
   'Post-Midnight',
@@ -26,6 +30,7 @@ const timeOfDay = [
   'Sunset',
   'Evening'
 ];
+
 const phaseNames = [
   'Waxing Crescent',
   'First Quarter',
@@ -37,6 +42,7 @@ const phaseNames = [
   'New Moon'
 ];
 
+// sky gradients. source: https://codepen.io/billyysea/pen/nLroLY
 const colors = [
   [0, '00000c', 1, '00000c'],
   [0, '020111', 1, '191621'],
@@ -63,21 +69,17 @@ const colors = [
   [0.5, '090401', 1, '4B1D06'],
   [0.8, '00000c', 1, '150800'],
 ];
-// Source: https://codepen.io/billyysea/pen/nLroLY
 
-let night = 0;
-let time = 0;
-let universePanelRatio = 0.8;
-let uWidth;
+let regularFont, boldFont;
 
-let fade = 0;
-let fadeAmount = 1
-let horizonDisplayed = false;
-let locationDisplayed = false;
-
-// images
-let earth, moon, arrow, horizon, ray, universe;
-let moonPhases = [];
+// Serial communication
+let serial; // p5.SerialPort object
+let serialPortName = '/dev/cu.usbmodem2101';
+let latestData = '';
+let incomingData = 0;
+let serialOpen = false;
+let portNameSelect;
+let portNameSelectVisible = false;
 
 function preload() {
   for (let i = 0; i < daysPerMonth; i++) {
@@ -89,6 +91,8 @@ function preload() {
   arrow = loadImage('assets/arrow.png');
   ray = loadImage('assets/ray.png');
   universe = loadImage('assets/universe.jpg');
+  regularFont = loadFont('./assets/OpenSans_SemiCondensed-SemiBold.ttf');
+  boldFont = loadFont('./assets/OpenSans_SemiCondensed-ExtraBold.ttf');
 }
 
 function setup() {
@@ -100,6 +104,8 @@ function setup() {
     fade = 0;
     fadeAmount = 1;
   }, 15000);
+
+  textFont(regularFont);
 
   serial = new p5.SerialPort();
   serial.list();
@@ -147,7 +153,7 @@ function draw() {
   for (let i = 0; i < numOfRays; i++) {
     push();
     rotate(PI + ((i - 10) / 20 * theta));
-    image(ray, 0, r + 5, 7, 50);
+    image(ray, 0, r + 3, 7, 50);
     pop();
   }
   pop();
@@ -155,7 +161,7 @@ function draw() {
   // Earth Placement
   push();
   translate(uWidth / 2, height / 2);
-  rotate(PI - time * PI / 12)
+  rotate(PI - time * PI / 12);
 
   if (horizonDisplayed) {
     // For creating radial gradients see: https://codepen.io/pelletierauger/pen/GqJRXE
@@ -173,28 +179,17 @@ function draw() {
     if (locationDisplayed) {
       tint(255, fade);
       image(arrow, 0, earthD / 4, earthD / 2, earthD / 2);
-      rotate((time - 2) * PI / 2);
-      fill(204, 204, 204, fade);
-      // FIXME: place text correctly
+
       textSize(20);
-      textAlign(CENTER);
-      switch (time) {
-        case 0:
-          text("You are here!", -earthD * 0.8, -earthD * 1.1, 100, 100);
-          break;
-        case 1:
-          text("You are here!", -earthD * 1.3, earthD * 0.3, 100, 100);
-          break;
-        case 2:
-          text("You are here!", earthD * 0.2, earthD * 0.8, 100, 100);
-          break;
-        case 3:
-          text("You are here!",earthD * 0.75, -earthD * 0.6, 100, 100);
-          break;
-        default:
-          text("You are here!", 0, 0, 100, 100);
-          break;
-      }
+      const here = "You're here!";
+      push();
+      translate(0.5 * earthD, earthD);
+      rotate(time * PI / 12 - PI);
+      fill(204, 204, 204, fade);
+      textFont(boldFont);
+      textAlign(CENTER, CENTER);
+      text(here, -earthD / 6, -earthD / 6, earthD / 3, earthD / 3);
+      pop();
 
       if (fade < 0) {
         // fadeAmount = 10;
@@ -316,7 +311,7 @@ function draw() {
   text(tod, phasePanelWidth / 2, phaseHeight + timeOffset);
   
   textSize(20);
-  text("Dubai's Time", phasePanelWidth / 2, phaseHeight + timeOffset + 40);
+  text("Dubai Time", phasePanelWidth / 2, phaseHeight + timeOffset + 40);
 
   fill(0, 0, 255);
   rect(40, keyOffset, 20, 20);
@@ -330,7 +325,7 @@ function draw() {
   text("Moon's far side", 80, keyOffset + 3);
   text("Moon's dark side", 80, keyOffset + 30 + 3);
   text("The Sun", 80, keyOffset + 60 + 3);
-  
+
   pop();
 
   portNameSelect.position(width - phasePanelWidth, height - 50);
@@ -375,8 +370,6 @@ function windowResized() {
 
 // callback function to update serial port name
 function updatePort() {
-  // serialPortName = '/dev/tty.usbmodem2101';
-  // serialPortName = portNameInput.value();
   serialPortName = portNameSelect.value();
   serial.openPort(serialPortName);
   portNameSelect.hide();
