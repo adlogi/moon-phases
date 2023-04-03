@@ -1,6 +1,17 @@
 let canvas;
 let ctx;
 
+// Serial communication
+let serial; // p5.SerialPort object
+let serialPortName = '/dev/cu.usbmodem2101';
+let latestData = '';
+let incomingData = 0;
+let serialOpen = false;
+
+// let portNameInput, portNameButton;
+let portNameSelect;
+let portNameSelectVisible = false;
+
 const daysPerMonth = 30;
 const earthD = 160;
 const moonD = earthD / 3.7;
@@ -89,6 +100,20 @@ function setup() {
     fade = 0;
     fadeAmount = 1;
   }, 15000);
+
+  serial = new p5.SerialPort();
+  serial.list();
+  serial.on('connected', gotServerConnection);
+  serial.on('list', gotList);
+  serial.on('data', gotData);
+  serial.on('error', gotError);
+  serial.on('open', gotOpen);
+  serial.on('close', gotClose);
+  serial.on('rawdata', gotRawData);
+
+  portNameSelect = createSelect(serialPortName);
+  portNameSelect.changed(updatePort);
+  portNameSelect.hide();
 }
 
 function draw() {
@@ -307,6 +332,8 @@ function draw() {
   text("The Sun", 80, keyOffset + 60 + 3);
   
   pop();
+
+  portNameSelect.position(width - phasePanelWidth, height - 50);
 }
 
 function keyPressed() {
@@ -318,13 +345,25 @@ function keyPressed() {
       time = (time - 1) < 0 ? 23 : time - 1;
       break;
     case (RIGHT_ARROW):
-      night = (night + 1) % daysPerMonth;
+      if (!serialOpen) {
+        night = (night + 1) % daysPerMonth;
+      }
       break;
     case (LEFT_ARROW):
-      night = (night - 1) < 0 ? 29 : night - 1;
+      if (!serialOpen) {
+        night = (night - 1) < 0 ? 29 : night - 1;
+      }
       break;
     case (32): // Space
       horizonDisplayed = !horizonDisplayed;
+      break;
+    case (83): // S
+      if (portNameSelectVisible) {
+        portNameSelect.hide();
+      } else {
+        portNameSelect.show();
+      }
+      portNameSelectVisible = !portNameSelectVisible;
       break;
   }
 }
@@ -332,4 +371,58 @@ function keyPressed() {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   uWidth = width * universePanelRatio;
+}
+
+// callback function to update serial port name
+function updatePort() {
+  // serialPortName = '/dev/tty.usbmodem2101';
+  // serialPortName = portNameInput.value();
+  serialPortName = portNameSelect.value();
+  serial.openPort(serialPortName);
+  portNameSelect.hide();
+  portNameSelectVisible = false;
+}
+
+// Connected
+function gotServerConnection() {
+  print('connected to server');
+}
+
+// List of ports
+function gotList(list) {
+  print('list of serial ports:');
+  for (let i = 0; i < list.length; i++) {
+    portNameSelect.option(list[i]);
+    print(list[i]);
+  }
+}
+
+// Connected to serial device
+function gotOpen() {
+  serialOpen = true;
+  print('serial port is open');
+}
+
+function gotClose() {
+  serialOpen = false;
+  print('serial port is closed');
+  latestData = 'serial port is closed';
+}
+
+function gotError(e) {
+  print(e);
+}
+
+// there is data available to work with from the serial port
+function gotData() {
+  let currentString = serial.readLine();
+  trim(currentString);
+  if (!currentString) {
+    return;
+  }
+  night = parseInt(currentString);
+}
+
+function gotRawData(data) {
+  incomingData = data;
 }
