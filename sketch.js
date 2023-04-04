@@ -83,16 +83,17 @@ let portNameSelectVisible = false;
 
 function preload() {
   for (let i = 0; i < daysPerMonth; i++) {
-    moonPhases[i] = loadImage('assets/moon-phases/' + (i + 1) + '.jpg');
+    moonPhases[i] = loadImage('assets/images/moon-phases/' + (i + 1) + '.jpg');
   }
-  earth = loadImage('assets/earth-0.png');
-  moon = loadImage('assets/moon-above.png');
-  horizon = loadImage('assets/horizon.png');
-  arrow = loadImage('assets/arrow.png');
-  ray = loadImage('assets/ray.png');
-  universe = loadImage('assets/universe.jpg');
-  regularFont = loadFont('./assets/OpenSans_SemiCondensed-SemiBold.ttf');
-  boldFont = loadFont('./assets/OpenSans_SemiCondensed-ExtraBold.ttf');
+  earth = loadImage('assets/images/earth-0.png');
+  moon = loadImage('assets/images/moon-above.png');
+  horizon = loadImage('assets/images/horizon.png');
+  arrow = loadImage('assets/images/arrow.png');
+  ray = loadImage('assets/images/ray.png');
+  universe = loadImage('assets/images/universe.jpg');
+  
+  regularFont = loadFont('./assets/fonts/OpenSans_SemiCondensed-SemiBold.ttf');
+  boldFont = loadFont('./assets/fonts/OpenSans_SemiCondensed-ExtraBold.ttf');
 }
 
 function setup() {
