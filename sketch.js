@@ -267,7 +267,7 @@ function draw() {
   textSize(100);
   text((night + 1), phasePanelWidth / 2, phaseHeight + 140 + 40);
   textSize(20);
-  text("Night" + (night === 0 ? '' : 's') + " of the Lunar Month", phasePanelWidth / 2, phaseHeight + 200 + 40);
+  text("Night" + (night === 0 ? '' : 's') + " of Lunar Month", phasePanelWidth / 2, phaseHeight + 200 + 40);
   textSize(30);
   let moonPhaseName = phaseNames[0];
   if (night < 7) {
