@@ -324,7 +324,7 @@ function draw() {
   fill('#CCCCCC');
   text("Moon's far side", 80, keyOffset + 3);
   text("Moon's dark side", 80, keyOffset + 30 + 3);
-  text("The Sun", 80, keyOffset + 60 + 3);
+  text("Sun", 80, keyOffset + 60 + 3);
 
   pop();
 
@@ -350,7 +350,9 @@ function keyPressed() {
       }
       break;
     case (32): // Space
-      horizonDisplayed = !horizonDisplayed;
+      if (!serialOpen) {
+        horizonDisplayed = !horizonDisplayed;
+      }
       break;
     case (83): // S
       if (portNameSelectVisible) {
@@ -416,7 +418,10 @@ function gotData() {
   // input format: "Xk0" + output0Val + "Xk1" + output1Val + "Xb0" + buttonPress
   const sensors = currentString.split('X').slice(1);
   night = parseInt(sensors[0].slice(2));
-  // TODO: add show horizon instead of reading SPACE press
+  let keyPressed = parseInt(sensors[2].slice(2));
+  if (keyPressed === 1) {
+    horizonDisplayed = !horizonDisplayed;
+  }
 }
 
 function gotRawData(data) {
