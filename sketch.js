@@ -3,8 +3,20 @@ let ctx;
 
 let night = 0;
 let time = 0;
+let earthD, moonD, sunArcHeight;
+const daysPerMonth = 30;
+const moonEarthRatio = 0.27;
+
+// Responsiveness: object ratios to the height of the window
+const earthRatio = 0.17;
+const moonRatio = earthRatio * moonEarthRatio;
+const earthMoonDistanceRatio = 0.4;
+const sunArcHeightRatio = 0.03;
+const rayRatio = 0.04;
+const rayWHRatio = 0.3; // related to the specific image used
+
 let universePanelRatio = 0.8;
-let uWidth;
+let universeWidth;
 
 let fade = 0;
 let fadeAmount = 1
@@ -15,10 +27,16 @@ let locationDisplayed = true;
 let earth, moon, horizon, ray, universe, arrow;
 let moonPhases = [];
 
-const daysPerMonth = 30;
-const earthD = 160;
-const moonD = earthD / 3.7;
-const earthMoonD = 380;
+let regularFont, boldFont;
+
+// Serial communication
+let serial; // p5.SerialPort object
+let serialPortName = '/dev/cu.usbmodem2101';
+let latestData = '';
+let incomingData = 0;
+let serialOpen = false;
+let portNameSelect;
+let portNameSelectVisible = false;
 
 const timeOfDay = [
   'Midnight',
@@ -70,17 +88,6 @@ const colors = [
   [0.8, '00000c', 1, '150800'],
 ];
 
-let regularFont, boldFont;
-
-// Serial communication
-let serial; // p5.SerialPort object
-let serialPortName = '/dev/cu.usbmodem2101';
-let latestData = '';
-let incomingData = 0;
-let serialOpen = false;
-let portNameSelect;
-let portNameSelectVisible = false;
-
 function preload() {
   for (let i = 0; i < daysPerMonth; i++) {
     moonPhases[i] = loadImage('assets/images/moon-phases/' + (i + 1) + '.jpg');
@@ -99,7 +106,12 @@ function preload() {
 function setup() {
   canvas = createCanvas(windowWidth, windowHeight);
   ctx = canvas.drawingContext;
-  uWidth = width * universePanelRatio;
+
+  universeWidth = universePanelRatio * width;
+  earthD = earthRatio * height;
+  moonD = moonRatio * height;
+  sunArcHeight = sunArcHeightRatio * height;
+
   setInterval(() => {
     locationDisplayed = true;
     fade = 0;
@@ -126,22 +138,21 @@ function setup() {
 function draw() {
   background(0);
   tint(255, 100);
-  image(universe, 0, 0, uWidth, height);
+  image(universe, 0, 0, universeWidth, height);
   noTint();
   noStroke();
 
   // Sun Placement
-  const sunArcHeight = 0.02 * height;
   fill(255, 175, 50);
   // r = (h/2) + (c^2 / 8h)
   // theta = 2 * acos(c / 2r)
   // where h = r - distanceFromCenter, c: chord
   // see: https://planetcalc.com/1421/
-  let r = sunArcHeight / 2 + ((uWidth * uWidth) / (8 * sunArcHeight));
-  let theta = PI - (2 * Math.acos(uWidth / (2 * r)));
+  let r = sunArcHeight / 2 + ((universeWidth * universeWidth) / (8 * sunArcHeight));
+  let theta = PI - (2 * Math.acos(universeWidth / (2 * r)));
   let numOfRays = 20;
   push();
-  translate(uWidth / 2, height + r - sunArcHeight);
+  translate(universeWidth / 2, height + r - sunArcHeight);
   arc(
     0,
     0,
@@ -151,23 +162,24 @@ function draw() {
     -PI / 2 + theta / 2,
     CHORD
   );
+  
   for (let i = 0; i < numOfRays; i++) {
     push();
     rotate(PI + ((i - 10) / 20 * theta));
-    image(ray, 0, r + 3, 7, 50);
+    image(ray, 0, r + 3, rayWHRatio * rayRatio * height, rayRatio * height);
     pop();
   }
   pop();
   
   // Earth Placement
   push();
-  translate(uWidth / 2, height / 2);
+  translate(universeWidth / 2, height / 2);
   rotate(PI - time * PI / 12);
 
   if (horizonDisplayed) {
     // For creating radial gradients see: https://codepen.io/pelletierauger/pen/GqJRXE
     // Also: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createRadialGradient
-    let gradient = ctx.createRadialGradient(0, -150, 200, 0, 50, 400);
+    let gradient = ctx.createRadialGradient(0, -0.16 * height, 0.21 * height, 0, 0.05 * height, 0.42 * height);
     for (let i = 0; i < colors[time].length / 2; i++) {
       gradient.addColorStop(1 - colors[time][i * 2], '#' + colors[time][i * 2 + 1] + 'CC');
     }
@@ -206,9 +218,9 @@ function draw() {
 
   // Moon Placement
   push();
-  translate(uWidth / 2, height / 2);
+  translate(universeWidth / 2, height / 2);
   rotate(PI - (night + 1) * 2 * PI / daysPerMonth);
-  translate(0, -earthMoonD);
+  translate(0, -(earthMoonDistanceRatio * height));
 
   if (horizonDisplayed) {
     // mask the moon phase image
@@ -368,7 +380,10 @@ function keyPressed() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  uWidth = width * universePanelRatio;
+  universeWidth = width * universePanelRatio;
+  earthD = earthRatio * height;
+  moonD = moonRatio * height;
+  sunArcHeight = sunArcHeightRatio * height;
 }
 
 // callback function to update serial port name
