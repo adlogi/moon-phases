@@ -184,16 +184,16 @@ function draw() {
       gradient.addColorStop(1 - colors[time][i * 2], '#' + colors[time][i * 2 + 1] + 'CC');
     }
     ctx.fillStyle = gradient;
-    arc(0, 0 - 40, earthD * 5.22, earthD * 5.22, 0 + PI / 58, PI - PI / 58);
-    image(horizon, -(earthD * 5.22) / 2, -earthD * 0.3, earthD * 5.22, earthD);
+    arc(0, -0.25 * earthD, 5.22 * earthD, 5.22 * earthD, 0 + PI / 58, PI - PI / 58);
+    image(horizon, -5.22 * earthD / 2, -0.3 * earthD, 5.22 * earthD, earthD);
   } else {
-    image(earth, -earthD / 2, -earthD / 2, earthD, earthD);
+    image(earth, -0.5 * earthD, -0.5 * earthD, earthD, earthD);
 
     if (locationDisplayed) {
       tint(255, fade);
       image(arrow, 0, earthD / 4, earthD / 2, earthD / 2);
 
-      textSize(20);
+      textSize(0.02 * height);
       const here = "You're here!";
       push();
       translate(0.5 * earthD, earthD);
@@ -227,7 +227,7 @@ function draw() {
     // See: https://www.youtube.com/watch?v=Wdz71QzcdyY
     let cnv = createGraphics(moonD, moonD);
     let littleMoon = moonPhases[night].get();
-    cnv.ellipse(cnv.width / 2, cnv.height / 2, moonD * 0.95, moonD * 0.95);
+    cnv.ellipse(cnv.width / 2, cnv.height / 2, 0.95 * moonD, 0.95 * moonD);
     littleMoon.mask(cnv);
     image(littleMoon, -moonD / 2, -moonD / 2, moonD, moonD);
   } else {
@@ -236,12 +236,12 @@ function draw() {
     // Moon's dark side
     push();
     rotate((night + 1) * 2 * PI / daysPerMonth);
-    fill(255, 0, 0, 200);
+    fill(0, 0, 0, 200);
     arc(0, 0, moonD, moonD, 0, PI);
     pop();
 
     // Moon's far side
-    fill(0, 0, 255, 200);
+    fill(0, 0, 255, 140);
     arc(0, 0, moonD, moonD, PI, 0);
 
     // Moon's dark and far sides in one arc
@@ -260,28 +260,27 @@ function draw() {
 
   // Moon phase panel
   let phasePanelWidth = (1 - universePanelRatio) * width;
-  let phaseWidth = 0.8 * phasePanelWidth;
-  let phaseHeight = phaseWidth;
-  const phaseOffset = 30;
-  const timeOffset = 380;
-  const keyOffset = height - 120;
+  let phaseD = (0.26 * height < 0.8 * phasePanelWidth) ? 0.26 * height : 0.8 * phasePanelWidth;
+  const phaseNameRatio = 0.50;
+  const timeOffsetRatio = 0.75;
+  const keyOffsetRatio = 0.9;
   push();
   translate(width - phasePanelWidth, 0);
   image(
     moonPhases[night],
-    0.5 * (phasePanelWidth - phaseWidth),
-    0.5 * (phasePanelWidth - phaseWidth) + phaseOffset,
-    phaseWidth,
-    phaseHeight
+    0.5 * (phasePanelWidth - phaseD),
+    0.07 * height,
+    phaseD,
+    phaseD
   );
 
   textAlign(CENTER);
   fill(255);
-  textSize(100);
-  text((night + 1), phasePanelWidth / 2, phaseHeight + 140 + 40);
-  textSize(20);
-  text("Night" + (night === 0 ? '' : 's') + " of Lunar Month", phasePanelWidth / 2, phaseHeight + 200 + 40);
-  textSize(30);
+  textSize(0.11 * height);
+  text((night + 1), 0.5 * phasePanelWidth, phaseNameRatio * height);
+  textSize(0.02 * height);
+  text("Night" + (night === 0 ? '' : 's') + " of Lunar Month", 0.5 * phasePanelWidth, (phaseNameRatio + 0.05) * height);
+  textSize(0.03 * height);
   let moonPhaseName = phaseNames[0];
   if (night < 7) {
     moonPhaseName = phaseNames[0];
@@ -300,9 +299,9 @@ function draw() {
   } else {
     moonPhaseName = phaseNames[7];
   }
-  text('( ' + moonPhaseName + ' )', phasePanelWidth / 2, phaseHeight + 240 + 40);
+  text('( ' + moonPhaseName + ' )', 0.5 * phasePanelWidth, (phaseNameRatio + 0.11) * height);
   
-  textSize(40);
+  textSize(0.04 * height);
   let tod = timeOfDay[0];
   if (time < 1) {
     tod = timeOfDay[0];
@@ -321,23 +320,24 @@ function draw() {
   } else {
     tod = timeOfDay[7];
   }
-  text(tod, phasePanelWidth / 2, phaseHeight + timeOffset);
+  text(tod, 0.5 * phasePanelWidth, timeOffsetRatio * height);
   
-  textSize(20);
-  text("Dubai Time", phasePanelWidth / 2, phaseHeight + timeOffset + 40);
+  textSize(0.02 * height);
+  text("Dubai Time", 0.5 * phasePanelWidth, (timeOffsetRatio + 0.04)* height);
 
+  // fill(0, 0, 0, 200);
+  // rect(40, keyOffsetRatio * height, 20, 20);
   fill(0, 0, 255);
-  rect(40, keyOffset, 20, 20);
-  fill(255, 0, 0);
-  rect(40, keyOffset + 30, 20, 20);
+  rect(0.04 * height, (keyOffsetRatio + 0.03) * height, 0.02 * height, 0.02 * height);
   fill(255, 175, 50);
-  rect(40, keyOffset + 60, 20, 20);
-  textSize(16);
-  textAlign(LEFT, TOP);
+  rect(0.04 * height, (keyOffsetRatio + 0.06) * height, 0.02 * height, 0.02 * height);
+  
   fill('#CCCCCC');
-  text("Moon's far side", 80, keyOffset + 3);
-  text("Moon's dark side", 80, keyOffset + 30 + 3);
-  text("Sun", 80, keyOffset + 60 + 3);
+  textSize(0.017 * height);
+  textAlign(LEFT, TOP);
+  // text("Moon's dark side", 80, keyOffsetRatio * height);
+  text("Moon's far side", 0.08 * height, (keyOffsetRatio + 0.03) * height);
+  text("Sun", 0.08 * height, (keyOffsetRatio + 0.06) * height);
 
   pop();
 
