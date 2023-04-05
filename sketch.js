@@ -1,3 +1,10 @@
+/*
+  Moon Phases
+  By:
+  Abdulrahman Y. idlbi
+  adlogi@alum.mit.edu
+*/
+
 let canvas;
 let ctx;
 
