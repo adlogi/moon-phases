@@ -1,45 +1,70 @@
-// this code uses the potentiometer on the Arduino Sensor Kit (https://sensorkit.arduino.cc/)
+#define CLK1 2
+#define DT1 3
+#define CLK2 5
+#define DT2 6
+#define BTN 4
 
-const int knob0Pin = A0;
-// const int knob1Pin = A1;
-const int buttonPin = 4;  // the pin that the pushbutton is attached to
-int knob0Val = 0;
-int knob1Val = 0;
-int output0Val = 0;
-int output1Val = 0;
+int currentStateCLK1, currentStateCLK2;
+int lastStateCLK1, lastStateCLK2;
 
-int buttonPushCounter = 0;  // counter for the number of button presses
-int buttonState = 0;        // current state of the button
-int lastButtonState = 0;    // previous state of the button
-int buttonPress = 0;
+int btnState = 0;        // current state of the button
+int lastBtnState = HIGH;    // previous state of the button
+
+String output;
 
 void setup() {
-  pinMode(buttonPin, INPUT);
+	pinMode(CLK1,INPUT);
+  pinMode(CLK2,INPUT);
+	pinMode(DT1,INPUT);
+  pinMode(DT2,INPUT);
+	pinMode(BTN, INPUT_PULLUP);
+
+  // Read the initial state of CLK
+	lastStateCLK1 = digitalRead(CLK1);
+  lastStateCLK2 = digitalRead(CLK2);
+
   Serial.begin(9600);
 }
 
 void loop() {
-  knob0Val = analogRead(knob0Pin);
-  knob1Val = analogRead(knob0Pin); // TODO: change to knob1Pin
+  // Read the current state of CLK
+	currentStateCLK1 = digitalRead(CLK1);
+  currentStateCLK2 = digitalRead(CLK2);
 
-  buttonState = digitalRead(buttonPin);
-  if (buttonState == LOW && lastButtonState == HIGH) {
-    buttonPress = 1;
-  } else {
-    buttonPress = 0;
+  // If last and current state of CLK are different, then pulse occurred
+	// React to only 1 state change to avoid double count
+	if (currentStateCLK1 != lastStateCLK1  && currentStateCLK1 == 1){
+		// If the DT state is different than the CLK state then
+		// the encoder is rotating CCW so decrement
+		if (digitalRead(DT1) != currentStateCLK1) {
+      output = "Xr1-1";
+		} else {
+			// Encoder is rotating CW
+			output = "Xr1+1";
+		}
+    Serial.println(output);
+	}
+  // Remember last CLK state
+	lastStateCLK1 = currentStateCLK1;
+
+  if (currentStateCLK2 != lastStateCLK2  && currentStateCLK2 == 1){
+		if (digitalRead(DT2) != currentStateCLK2) {
+      output = "Xr2-1";
+		} else {
+			output = "Xr2+1";
+		}
+    Serial.println(output);
+	}
+  lastStateCLK2 = currentStateCLK2;
+
+  // Read the button state
+	btnState = digitalRead(BTN);
+  //If we detect LOW signal edge, button is pressed
+  if (btnState == LOW && lastBtnState == HIGH) {
+    output = "Xbt1";
+    Serial.println(output);
   }
-  lastButtonState = buttonState;
+  lastBtnState = btnState;
 
-  output0Val = map(knob0Val, 0, 1023, 0, 29);
-  output1Val = map(knob0Val, 0, 1023, 0, 29); // TODO: knob0Val
-
-  String output = "Xk0";
-  output += output0Val;
-  output += "Xk1";
-  output += output1Val;
-  output += "Xb0";
-  output += buttonPress;
-
-  Serial.println(output);
-  delay(50);
+  delay(10);
 }

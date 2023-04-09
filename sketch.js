@@ -351,22 +351,38 @@ function draw() {
   portNameSelect.position(width - phasePanelWidth, height - 50);
 }
 
+function updateTime(change) {
+  if (change > 0) {
+    time = (time + change) % 24;
+  } else {
+    time = (time + change) < 0 ? 23 : time + change;
+  }
+}
+
+function updateNight(change) {
+  if (change > 0) {
+    night = (night + change) % daysPerMonth;
+  } else {
+    night = (night + change) < 0 ? 29 : night + change;
+  }        
+}
+
 function keyPressed() {
   switch (keyCode) {
     case (UP_ARROW):
-      time = (time + 1) % 24;
+      updateTime(1);
       break;
     case (DOWN_ARROW):
-      time = (time - 1) < 0 ? 23 : time - 1;
+      updateTime(-1);
       break;
     case (RIGHT_ARROW):
       if (!serialOpen) {
-        night = (night + 1) % daysPerMonth;
+        updateNight(1);
       }
       break;
     case (LEFT_ARROW):
       if (!serialOpen) {
-        night = (night - 1) < 0 ? 29 : night - 1;
+        updateNight(-1);
       }
       break;
     case (32): // Space
@@ -438,11 +454,14 @@ function gotData() {
   if (!currentString) {
     return;
   }
-  // input format: "Xk0" + output0Val + "Xk1" + output1Val + "Xb0" + buttonPress
-  const sensors = currentString.split('X').slice(1);
-  night = parseInt(sensors[0].slice(2));
-  let keyPressed = parseInt(sensors[2].slice(2));
-  if (keyPressed === 1) {
+
+  const sensorName = currentString.slice(1, 3);
+  const sensorValue = parseInt(currentString.slice(3));
+  if (sensorName == "r1") {
+    updateNight(sensorValue);
+  } else if (sensorName == "r2") {
+    updateTime(sensorValue);
+  } else if (sensorName == "bt") {
     horizonDisplayed = !horizonDisplayed;
   }
 }
