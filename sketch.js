@@ -26,7 +26,7 @@ let universePanelRatio = 0.8;
 let universeWidth;
 
 let fade = 0;
-let fadeAmount = 1
+let fadeAmount = 1;
 let horizonDisplayed = false;
 let locationDisplayed = true;
 
